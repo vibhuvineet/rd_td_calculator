@@ -505,143 +505,209 @@ function generatePDF(){
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
-  const margin = 48;
-  const bottomLimit = pageHeight - 56;
-  let y = 56;
+  const margin = 54;
+  const contentWidth = pageWidth - margin * 2;
+  const bottomLimit = pageHeight - 64;
+  let y = 0;
 
-  const green = [31, 59, 44];
-  const ink = [28, 26, 20];
-  const grey = [107, 99, 80];
-  const red = [122, 46, 46];
+  // ---- palette ----
+  const green   = [31, 59, 44];     // headings / section bars
+  const greenBg = [235, 231, 216];  // pale section-bar fill
+  const ink     = [28, 26, 20];     // body text
+  const grey    = [111, 103, 86];   // secondary text
+  const hair    = [214, 205, 178];  // hairline row rules
+  const red     = [122, 46, 46];    // accent / final amount
+
+  // ---- spacing constants (generous, consistent) ----
+  const SECTION_GAP_BEFORE = 30;  // space above each new section bar
+  const SECTION_GAP_AFTER  = 12;  // space after a section's last row, before the rule
+  const ROW_H = 17;
 
   const ensureSpace = (needed) => {
-    if(y + needed > bottomLimit){ doc.addPage(); y = 56; }
+    if(y + needed > bottomLimit){ doc.addPage(); y = 64; }
   };
 
-  const line = (yy) => { doc.setDrawColor(...ink); doc.setLineWidth(0.75); doc.line(margin, yy, pageWidth - margin, yy); };
-  const dashedLine = (yy) => { doc.setDrawColor(203,185,138); doc.setLineWidth(0.75); doc.setLineDashPattern([2,2], 0); doc.line(margin, yy, pageWidth - margin, yy); doc.setLineDashPattern([], 0); };
+  const fullLine = (yy, weight, color) => {
+    doc.setDrawColor(...(color || ink));
+    doc.setLineWidth(weight || 0.75);
+    doc.line(margin, yy, pageWidth - margin, yy);
+  };
 
-  doc.setTextColor(...green);
+  // ---------- Letterhead ----------
+  y = 60;
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(20);
-  doc.text('RD x TD Maturity Calculator', margin, y);
-  y += 16;
+  doc.setFontSize(19);
+  doc.setTextColor(...green);
+  doc.text('RD \u00d7 TD Maturity Statement', margin, y);
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(...grey);
-  doc.text('Combined Deposit Ledger - Form No. RD/TD-01 - ' + boundLabel(r.bound), margin, y);
-  y += 10;
-  line(y);
-  y += 26;
+  doc.text('Generated ' + dateStr, pageWidth - margin, y - 4, { align: 'right' });
 
-  doc.setFont('helvetica', 'bold');
+  y += 18;
   doc.setFontSize(10);
-  doc.setTextColor(...ink);
-  doc.text('DEPOSIT ENTRY', margin, y);
-  y += 16;
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  const colWidth = (pageWidth - margin*2) / 3;
-  doc.text('Principal (TD)', margin, y);
-  doc.text('TD Rate', margin + colWidth, y);
-  doc.text('RD Rate', margin + colWidth*2, y);
-  y += 15;
-  doc.setFont('helvetica', 'bold');
-  doc.text(fmtINR_PDF(r.principal), margin, y);
-  doc.text(r.tdRate + '%', margin + colWidth, y);
-  doc.text(r.rdRate + '%', margin + colWidth*2, y);
-  y += 20;
-  dashedLine(y);
-  y += 24;
+  doc.text('Combined Deposit Ledger  \u2022  Form No. RD/TD\u201401  \u2022  ' + boundLabel(r.bound), margin, y);
 
-  const section = (title) => {
-    ensureSpace(24);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.setTextColor(...green);
-    doc.text(title.toUpperCase(), margin, y);
-    y += 16;
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    doc.setTextColor(...ink);
-  };
+  y += 14;
+  fullLine(y, 1.25, green);
+  y += 34; // generous gap after the masthead rule
 
-  const row = (label, value, bold) => {
-    const wrapped = doc.splitTextToSize(label, pageWidth - margin*2 - 130);
-    const rowHeight = 14 * wrapped.length + 4;
-    ensureSpace(rowHeight);
-    doc.setFont('helvetica', bold ? 'bold' : 'normal');
-    doc.setTextColor(...ink);
-    doc.text(wrapped, margin, y);
-    doc.text(value, pageWidth - margin, y, { align: 'right' });
-    y += rowHeight;
-  };
+  // ---------- Deposit Entry (bordered summary strip) ----------
+  const entryBoxH = 54;
+  ensureSpace(entryBoxH + SECTION_GAP_BEFORE);
+  doc.setDrawColor(...hair);
+  doc.setLineWidth(0.75);
+  doc.roundedRect(margin, y, contentWidth, entryBoxH, 3, 3);
 
-  section('Term Deposit - 5 Year Ledger');
-  row('Principal', fmtINR_PDF(r.principal));
-  row('Yearly Interest', fmtINR_PDF(r.yearInterest));
-  row('Approx Monthly Interest', fmtINR_PDF(r.approxMonthlyInterest));
-  line(y - 2);
-  y += 6;
-  row('Total TD Interest (5 yrs)', fmtINR_PDF(r.totalTdInterest), true);
-  y += 8;
+  const colW = contentWidth / 3;
+  const colX = [margin + 18, margin + colW + 8, margin + colW * 2 + 8];
+  const colLabel = ['PRINCIPAL (TD)', 'TD INTEREST RATE', 'RD INTEREST RATE'];
+  const colValue = [fmtINR_PDF(r.principal), r.tdRate + '%', r.rdRate + '%'];
 
-  section('Linked Recurring Deposit - ' + boundLabel(r.bound));
-  row('Monthly Denomination', fmtINR_PDF(r.monthly));
-  row('Yearly Deposit', fmtINR_PDF(r.yearlyDeposit));
-  row('Rebate (per year)', fmtINR_PDF(r.rebatePerYear));
-  row('Yearly Deposit - Rebate', fmtINR_PDF(r.yearlyLessRebate));
-  if(r.isOwnDeposit){
-    row('TD Interest - Yearly Deposit - Rebate (Amount Added By Self)', fmtINR_PDF(r.ownDepositPerYear));
-    line(y - 2); y += 6;
-    row('RD Own Deposit Till 5 Years', fmtINR_PDF(r.ownDepositTotal), true);
-  } else {
-    row('TD Interest - Yearly Deposit - Rebate (Abs Left Amount in SB)', fmtINR_PDF(r.leftoverPerYear));
-    line(y - 2); y += 6;
-    row('Balance Amount in SB After 5 Years', fmtINR_PDF(r.leftoverTotal), true);
-  }
-  y += 4;
-  line(y - 2); y += 6;
-  row('RD Total Rebate', fmtINR_PDF(r.totalRebate), true);
-  row('RD Interest', fmtINR_PDF(r.rdInterest));
-  y += 8;
-
-  section('Settlement');
-  const maturityLabel = r.isOwnDeposit ? 'Final Maturity (Inc Own Deposit)' : 'Final Maturity';
-  row('Total Interest', fmtINR_PDF(r.totalInterest), true);
-  row(maturityLabel, fmtINR_PDF(r.finalMaturity), true);
-
-  if(r.showCommission){
-    row('TD Comm', fmtINR_PDF(r.tdComm));
-    row('RD Comm', fmtINR_PDF(r.rdComm));
-    line(y - 2); y += 6;
-    row('Total Comm', fmtINR_PDF(r.totalComm), true);
-  }
-  y += 10;
-
-  const sealTitle = r.showCommission ? 'FINAL VALUE' : maturityLabel.toUpperCase();
-  const sealAmount = r.showCommission ? r.finalValue : r.finalMaturity;
-  ensureSpace(60);
-  doc.setDrawColor(...red);
-  doc.setLineWidth(1.5);
-  doc.roundedRect(margin, y, pageWidth - margin*2, 50, 3, 3);
-  doc.setTextColor(...red);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  const titleWrapped = doc.splitTextToSize(sealTitle, (pageWidth - margin*2) * 0.55);
-  doc.text(titleWrapped, margin + 16, y + 20);
-  doc.setFontSize(18);
-  doc.text(fmtINR_PDF(sealAmount), pageWidth - margin - 16, y + 32, { align: 'right' });
-  y += 70;
-
-  if(r.showCommission){
-    ensureSpace(70);
+  colX.forEach((cx, idx) => {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(...grey);
-    const note = 'Figures follow the source ledger exactly: TD interest compounds quarterly per year on the fixed principal; the monthly RD denomination is either rounded per the selected bound or entered directly under Custom RD Amount; RD maturity uses the standard quarterly-compounding recurring-deposit formula over 20 quarters; commission is 0.5% of principal (less Rs.50 per Rs.1 lakh) on the TD side and 4% of the yearly RD deposit, times 5, on the RD side.';
-    const wrapped = doc.splitTextToSize(note, pageWidth - margin*2);
+    doc.text(colLabel[idx], cx, y + 20);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(...ink);
+    doc.text(colValue[idx], cx, y + 40);
+  });
+
+  y += entryBoxH + SECTION_GAP_BEFORE;
+
+  // ---------- Section helpers ----------
+  const sectionBar = (title) => {
+    ensureSpace(28 + ROW_H * 2);
+    doc.setFillColor(...greenBg);
+    doc.rect(margin, y, contentWidth, 22, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(...green);
+    doc.text(title.toUpperCase(), margin + 10, y + 15);
+    y += 22 + 12; // breathing room below the bar before the first row
+  };
+
+  const row = (label, value, opts) => {
+    opts = opts || {};
+    const wrapped = doc.splitTextToSize(label, contentWidth - 150);
+    const rowHeight = Math.max(ROW_H, 12.5 * wrapped.length + 5);
+    ensureSpace(rowHeight + 4);
+    doc.setFont('helvetica', opts.bold ? 'bold' : 'normal');
+    doc.setFontSize(opts.bold ? 10.5 : 10);
+    doc.setTextColor(...ink);
+    doc.text(wrapped, margin + 6, y);
+    doc.text(value, pageWidth - margin - 6, y, { align: 'right' });
+    y += rowHeight;
+    if(opts.rule !== false){
+      fullLine(y - 4, 0.4, hair);
+    }
+    y += 4;
+  };
+
+  const subtotalRow = (label, value) => {
+    ensureSpace(ROW_H + 10);
+    fullLine(y - 2, 0.9, ink);
+    y += 12;
+    row(label, value, { bold: true, rule: false });
+    y += 4;
+  };
+
+  const closeSection = () => {
+    y += SECTION_GAP_AFTER;
+    fullLine(y, 0.75, hair);
+    y += SECTION_GAP_BEFORE;
+  };
+
+  // ---------- Term Deposit ----------
+  sectionBar('Term Deposit \u2014 5 Year Ledger');
+  row('Principal', fmtINR_PDF(r.principal));
+  row('Yearly Interest', fmtINR_PDF(r.yearInterest));
+  row('Approx Monthly Interest', fmtINR_PDF(r.approxMonthlyInterest));
+  subtotalRow('Total TD Interest (5 yrs)', fmtINR_PDF(r.totalTdInterest));
+  closeSection();
+
+  // ---------- Linked Recurring Deposit ----------
+  sectionBar('Linked Recurring Deposit \u2014 ' + boundLabel(r.bound));
+  row('Monthly Denomination', fmtINR_PDF(r.monthly));
+  row('Yearly Deposit', fmtINR_PDF(r.yearlyDeposit));
+  row('Rebate (per year)', fmtINR_PDF(r.rebatePerYear));
+  row('Yearly Deposit \u2212 Rebate', fmtINR_PDF(r.yearlyLessRebate));
+  if(r.isOwnDeposit){
+    row('TD Interest \u2212 Yearly Deposit \u2212 Rebate (Amount Added By Self)', fmtINR_PDF(r.ownDepositPerYear));
+    subtotalRow('RD Own Deposit Till 5 Years', fmtINR_PDF(r.ownDepositTotal));
+  } else {
+    row('TD Interest \u2212 Yearly Deposit \u2212 Rebate (Abs Left Amount in SB)', fmtINR_PDF(r.leftoverPerYear));
+    subtotalRow('Balance Amount in SB After 5 Years', fmtINR_PDF(r.leftoverTotal));
+  }
+  y += 6;
+  subtotalRow('RD Total Rebate', fmtINR_PDF(r.totalRebate));
+  row('RD Interest', fmtINR_PDF(r.rdInterest));
+  closeSection();
+
+  // ---------- Settlement ----------
+  sectionBar('Settlement');
+  const maturityLabel = r.isOwnDeposit ? 'Final Maturity (Inc. Own Deposit)' : 'Final Maturity';
+  subtotalRow('Total Interest', fmtINR_PDF(r.totalInterest));
+  subtotalRow(maturityLabel, fmtINR_PDF(r.finalMaturity));
+
+  if(r.showCommission){
+    y += 6;
+    row('TD Commission', fmtINR_PDF(r.tdComm));
+    row('RD Commission', fmtINR_PDF(r.rdComm));
+    subtotalRow('Total Commission', fmtINR_PDF(r.totalComm));
+  }
+
+  y += SECTION_GAP_BEFORE - 6;
+
+  // ---------- Final amount panel ----------
+  const sealTitle = r.showCommission ? 'FINAL VALUE' : maturityLabel.toUpperCase();
+  const sealAmount = r.showCommission ? r.finalValue : r.finalMaturity;
+  const panelH = 56;
+  ensureSpace(panelH + 20);
+
+  doc.setFillColor(...green);
+  doc.roundedRect(margin, y, contentWidth, panelH, 4, 4, 'F');
+  doc.setTextColor(...[243, 236, 219]);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.text('AMOUNT PAYABLE ON MATURITY', margin + 20, y + 22);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.text(sealTitle, margin + 20, y + 40);
+  doc.setFontSize(20);
+  doc.text(fmtINR_PDF(sealAmount), pageWidth - margin - 20, y + 36, { align: 'right' });
+
+  y += panelH + SECTION_GAP_BEFORE;
+
+  // ---------- Footer disclaimer (commission basis only) ----------
+  if(r.showCommission){
+    const note = 'Figures follow the source ledger exactly: TD interest compounds quarterly per year on the fixed principal; the monthly RD denomination is either rounded per the selected bound or entered directly under Custom RD Amount; RD maturity uses the standard quarterly-compounding recurring-deposit formula over 20 quarters; commission is 0.5% of principal (less Rs. 50 per Rs. 1 lakh) on the TD side and 4% of the yearly RD deposit, times 5, on the RD side.';
+    const wrapped = doc.splitTextToSize(note, contentWidth);
+    const noteH = wrapped.length * 11 + 20;
+    ensureSpace(noteH);
+    fullLine(y, 0.5, hair);
+    y += 16;
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(8);
+    doc.setTextColor(...grey);
     doc.text(wrapped, margin, y);
+    y += wrapped.length * 11;
+  }
+
+  // ---------- Page numbers ----------
+  const pageCount = doc.internal.getNumberOfPages();
+  for(let p = 1; p <= pageCount; p++){
+    doc.setPage(p);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...grey);
+    doc.text('Page ' + p + ' of ' + pageCount, pageWidth - margin, pageHeight - 30, { align: 'right' });
+    doc.text('RD \u00d7 TD Maturity Statement', margin, pageHeight - 30);
   }
 
   doc.save('RD-TD-Maturity-Statement.pdf');
