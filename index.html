@@ -30,35 +30,20 @@
     min-height:100vh;
     padding: 40px 16px 80px;
   }
-  .wrap{
-    max-width: 880px;
-    margin: 0 auto;
-  }
-  .masthead{
-    text-align:center;
-    color: var(--paper);
-    margin-bottom: 28px;
-  }
+  .wrap{ max-width: 880px; margin: 0 auto; }
+  .masthead{ text-align:center; color: var(--paper); margin-bottom: 28px; }
   .masthead .eyebrow{
     font-family:'IBM Plex Mono', monospace;
-    letter-spacing: 0.35em;
-    font-size: 11px;
-    text-transform: uppercase;
-    color: var(--brass-light);
-    margin-bottom: 10px;
+    letter-spacing: 0.35em; font-size: 11px; text-transform: uppercase;
+    color: var(--brass-light); margin-bottom: 10px;
   }
   .masthead h1{
-    font-family:'Fraunces', serif;
-    font-weight: 600;
-    font-size: clamp(28px, 5vw, 44px);
-    margin: 0 0 8px;
-    letter-spacing: 0.01em;
+    font-family:'Fraunces', serif; font-weight: 600;
+    font-size: clamp(28px, 5vw, 44px); margin: 0 0 8px; letter-spacing: 0.01em;
   }
   .masthead p{
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 13px;
-    color: rgba(243,236,219,0.65);
-    margin:0;
+    font-family:'IBM Plex Mono', monospace; font-size: 13px;
+    color: rgba(243,236,219,0.65); margin:0;
   }
 
   .ledger{
@@ -69,211 +54,126 @@
     padding: 36px 32px 32px;
   }
   .ledger::before{
-    content:"";
-    position:absolute;
-    left:64px; top:0; bottom:0;
-    width:1px;
+    content:""; position:absolute; left:64px; top:0; bottom:0; width:1px;
     background: rgba(122,46,46,0.25);
   }
   @media (max-width:600px){ .ledger::before{ display:none; } .ledger{padding:28px 18px 24px;} }
 
   .ledger-head{
     display:flex; justify-content:space-between; align-items:baseline;
-    border-bottom: 2px solid var(--ink);
-    padding-bottom: 10px; margin-bottom: 24px;
+    border-bottom: 2px solid var(--ink); padding-bottom: 10px; margin-bottom: 24px;
   }
-  .ledger-head .title{
-    font-family:'Fraunces', serif; font-weight:600; font-size: 20px;
-  }
-  .ledger-head .serial{
-    font-family:'IBM Plex Mono', monospace; font-size: 11px; color:#6b6350;
-  }
+  .ledger-head .title{ font-family:'Fraunces', serif; font-weight:600; font-size: 20px; }
+  .ledger-head .serial{ font-family:'IBM Plex Mono', monospace; font-size: 11px; color:#6b6350; }
 
-  .field-row{
-    display:grid;
-    grid-template-columns: 1fr;
-    gap: 18px;
-    margin-bottom: 8px;
-  }
-  @media (min-width: 700px){
-    .field-row{ grid-template-columns: repeat(3, 1fr); }
-  }
-  .field{
-    display:flex; flex-direction:column; gap:6px;
-  }
+  .field-row{ display:grid; grid-template-columns: 1fr; gap: 18px; margin-bottom: 8px; }
+  @media (min-width: 700px){ .field-row{ grid-template-columns: repeat(3, 1fr); } }
+  .field{ display:flex; flex-direction:column; gap:6px; }
   .field label{
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--ledger-green-dark);
+    font-family:'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--ledger-green-dark);
   }
   .field .input-row{
     display:flex; align-items:baseline; gap:6px;
-    border-bottom: 1.5px solid var(--ink);
-    padding-bottom: 4px;
+    border-bottom: 1.5px solid var(--ink); padding-bottom: 4px;
   }
   .field .prefix{ font-family:'IBM Plex Mono',monospace; font-size:15px; color:#6b6350;}
   .field input{
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 19px;
-    font-weight: 500;
-    color: var(--ink);
-    background: transparent;
-    border: none;
-    outline: none;
-    width: 100%;
-    padding: 2px 0;
+    font-family:'IBM Plex Mono', monospace; font-size: 19px; font-weight: 500;
+    color: var(--ink); background: transparent; border: none; outline: none;
+    width: 100%; padding: 2px 0;
   }
   .field input:focus{ color: var(--red-ink); }
 
+  fieldset.bound-group{
+    border: 1px solid var(--paper-line);
+    border-radius: 4px;
+    margin: 22px 0 0;
+    padding: 14px 16px 16px;
+  }
+  fieldset.bound-group legend{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--ledger-green-dark); padding: 0 6px;
+  }
+  .bound-options{
+    display:flex; flex-wrap: wrap; gap: 18px;
+  }
+  .check-option{
+    display:flex; align-items:center; gap: 8px;
+    font-family:'IBM Plex Sans', sans-serif; font-size: 13px;
+    color: var(--ledger-green-dark); cursor:pointer;
+  }
+  .check-option input{
+    width: 15px; height: 15px; accent-color: var(--red-ink); cursor:pointer;
+  }
+
   .commission-toggle{
-    display:flex;
-    align-items:flex-start;
-    gap: 10px;
-    margin-top: 18px;
-    font-family:'IBM Plex Sans', sans-serif;
-    font-size: 13px;
-    color: var(--ledger-green-dark);
-    cursor:pointer;
-    line-height:1.4;
+    display:flex; align-items:flex-start; gap: 10px; margin-top: 16px;
+    font-family:'IBM Plex Sans', sans-serif; font-size: 13px;
+    color: var(--ledger-green-dark); cursor:pointer; line-height:1.4;
   }
   .commission-toggle input{
-    margin-top: 3px;
-    width: 15px; height: 15px;
-    accent-color: var(--red-ink);
-    flex: 0 0 auto;
-    cursor:pointer;
+    margin-top: 3px; width: 15px; height: 15px; accent-color: var(--red-ink);
+    flex: 0 0 auto; cursor:pointer;
   }
 
   .calc-btn{
-    margin-top: 24px;
-    width: 100%;
-    background: var(--ledger-green);
-    color: var(--paper);
-    border: none;
-    font-family:'IBM Plex Mono', monospace;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    font-size: 13px;
-    padding: 14px;
-    cursor: pointer;
+    margin-top: 24px; width: 100%;
+    background: var(--ledger-green); color: var(--paper); border: none;
+    font-family:'IBM Plex Mono', monospace; letter-spacing: 0.12em;
+    text-transform: uppercase; font-size: 13px; padding: 14px; cursor: pointer;
     transition: background 0.2s ease, transform 0.1s ease;
   }
   .calc-btn:hover{ background: var(--ledger-green-dark); }
   .calc-btn:active{ transform: scale(0.995); }
   .pdf-btn{
-    margin-top: 10px;
-    background: transparent;
-    color: var(--ledger-green-dark);
+    margin-top: 10px; background: transparent; color: var(--ledger-green-dark);
     border: 1.5px solid var(--ledger-green-dark);
   }
   .pdf-btn:hover{ background: rgba(31,59,44,0.08); }
 
-  .results{
-    margin-top: 32px;
-    display:none;
-  }
+  .results{ margin-top: 32px; display:none; }
   .results.show{ display:block; }
 
   .seal-row{
-    display:flex; align-items:center; gap: 24px;
-    flex-wrap: wrap;
-    padding: 20px 0 24px;
-    border-bottom: 1px dashed var(--paper-line);
-    margin-bottom: 20px;
+    display:flex; align-items:center; gap: 24px; flex-wrap: wrap;
+    padding: 20px 0 24px; border-bottom: 1px dashed var(--paper-line); margin-bottom: 20px;
   }
   .seal{
-    flex: 0 0 auto;
-    width: 118px; height: 118px;
-    border-radius: 50%;
-    border: 3px solid var(--red-ink);
-    color: var(--red-ink);
+    flex: 0 0 auto; width: 118px; height: 118px; border-radius: 50%;
+    border: 3px solid var(--red-ink); color: var(--red-ink);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    transform: rotate(-8deg);
-    text-align:center;
-    position:relative;
+    transform: rotate(-8deg); text-align:center; position:relative;
   }
   .seal::before{
-    content:"";
-    position:absolute; inset:6px;
-    border: 1px solid var(--red-ink);
-    border-radius:50%;
+    content:""; position:absolute; inset:6px; border: 1px solid var(--red-ink); border-radius:50%;
   }
-  .seal .seal-label{
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 8px; letter-spacing:0.1em; text-transform:uppercase;
-    opacity:0.85;
-  }
-  .seal .seal-amt{
-    font-family:'Fraunces', serif;
-    font-weight:700;
-    font-size: 15px;
-    line-height:1.15;
-    margin-top:2px;
-  }
-  .headline{
-    flex:1 1 260px;
-  }
-  .headline .label{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:11px; text-transform:uppercase; letter-spacing:0.1em;
-    color:#6b6350;
-    margin-bottom:4px;
-  }
-  .headline .value{
-    font-family:'Fraunces', serif;
-    font-weight:700;
-    font-size: clamp(26px, 4vw, 38px);
-    color: var(--ledger-green-dark);
-  }
-  .headline .sub{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12px;
-    color:#6b6350;
-    margin-top:4px;
-  }
+  .seal .seal-label{ font-family:'IBM Plex Mono', monospace; font-size: 8px; letter-spacing:0.1em; text-transform:uppercase; opacity:0.85; }
+  .seal .seal-amt{ font-family:'Fraunces', serif; font-weight:700; font-size: 15px; line-height:1.15; margin-top:2px; }
+  .headline{ flex:1 1 260px; }
+  .headline .label{ font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.1em; color:#6b6350; margin-bottom:4px; }
+  .headline .value{ font-family:'Fraunces', serif; font-weight:700; font-size: clamp(26px, 4vw, 38px); color: var(--ledger-green-dark); }
+  .headline .sub{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:#6b6350; margin-top:4px; }
 
-  table.ledger-table{
-    width:100%;
-    border-collapse: collapse;
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 13px;
-  }
+  table.ledger-table{ width:100%; border-collapse: collapse; font-family:'IBM Plex Mono', monospace; font-size: 13px; }
   table.ledger-table caption{
-    text-align:left;
-    font-family:'IBM Plex Sans', sans-serif;
-    font-weight:600;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing:0.06em;
-    color: var(--ledger-green-dark);
-    margin-bottom: 10px;
+    text-align:left; font-family:'IBM Plex Sans', sans-serif; font-weight:600; font-size: 13px;
+    text-transform: uppercase; letter-spacing:0.06em; color: var(--ledger-green-dark); margin-bottom: 10px;
   }
-  table.ledger-table td{
-    padding: 7px 4px;
-    border-bottom: 1px solid rgba(28,26,20,0.12);
-  }
+  table.ledger-table td{ padding: 7px 4px; border-bottom: 1px solid rgba(28,26,20,0.12); }
   table.ledger-table td:first-child{ color:#544c3b; }
   table.ledger-table td:last-child{ text-align:right; font-weight:500; }
-  table.ledger-table tr.total td{
-    border-top: 1.5px solid var(--ink);
-    border-bottom:none;
-    font-weight:700;
-    padding-top:10px;
-  }
+  table.ledger-table tr.total td{ border-top: 1.5px solid var(--ink); border-bottom:none; font-weight:700; padding-top:10px; }
   .block{ margin-bottom: 26px; }
   .block:last-child{ margin-bottom:0; }
 
-  .results:not(.commission) .comm-row{ display:none; }
-
   .note{
-    margin-top: 22px;
-    font-family:'IBM Plex Sans', sans-serif;
-    font-size: 12px;
-    color:#6b6350;
-    line-height:1.5;
-    border-top: 1px dashed var(--paper-line);
-    padding-top:14px;
+    margin-top: 22px; font-family:'IBM Plex Sans', sans-serif; font-size: 12px;
+    color:#6b6350; line-height:1.5; border-top: 1px dashed var(--paper-line); padding-top:14px;
+    display:none;
   }
+  .note.show{ display:block; }
 </style>
 </head>
 <body>
@@ -315,18 +215,21 @@
       </div>
     </div>
 
+    <fieldset class="bound-group">
+      <legend>RD Rounding Basis</legend>
+      <div class="bound-options">
+        <label class="check-option"><input type="checkbox" name="bound" id="boundUpper" checked> Upper Bound</label>
+        <label class="check-option"><input type="checkbox" name="bound" id="boundMiddle"> Middle Bound</label>
+        <label class="check-option"><input type="checkbox" name="bound" id="boundLower"> Lower Bound</label>
+      </div>
+    </fieldset>
+
     <label class="commission-toggle" for="showCommission">
       <input type="checkbox" id="showCommission">
-      <span>Include commission details (show Total Value with agent commission, not just Final Maturity)</span>
+      <span>Include Commission Details</span>
     </label>
 
-    <label class="commission-toggle" for="useLowerBound">
-      <input type="checkbox" id="useLowerBound">
-      <span>Use Lower Bound logic (RD deposit rounded down — no self top-up needed). Unchecked = Upper Bound (RD deposit rounded up, includes self-funded top-up in Final Maturity).</span>
-    </label>
-
-
-    <button class="calc-btn" id="calcBtn">Post entry &amp; calculate</button>
+    <button class="calc-btn" id="calcBtn">Calculate</button>
     <button class="calc-btn pdf-btn" id="pdfBtn">Download as PDF</button>
 
     <div class="results" id="results">
@@ -346,47 +249,26 @@
       <div class="block">
         <table class="ledger-table">
           <caption>Term Deposit — 5 Year Ledger</caption>
-          <tbody>
-            <tr><td>Principal</td><td id="r-principal">—</td></tr>
-            <tr><td>TD interest, Year 1</td><td id="r-y1">—</td></tr>
-            <tr><td>TD interest, Year 2</td><td id="r-y2">—</td></tr>
-            <tr><td>TD interest, Year 3</td><td id="r-y3">—</td></tr>
-            <tr><td>TD interest, Year 4</td><td id="r-y4">—</td></tr>
-            <tr><td>TD interest, Year 5</td><td id="r-y5">—</td></tr>
-            <tr class="total"><td>Total TD interest</td><td id="r-tdtotal">—</td></tr>
-          </tbody>
+          <tbody id="tdTableBody"></tbody>
         </table>
       </div>
 
       <div class="block">
         <table class="ledger-table">
-          <caption>Linked Recurring Deposit</caption>
-          <tbody>
-            <tr><td id="lbl-monthly">Monthly denomination (Upper Bound)</td><td id="r-monthly">—</td></tr>
-            <tr><td>Yearly deposit</td><td id="r-yearly">—</td></tr>
-            <tr><td id="lbl-owndeposit">Own deposit (5 yrs, self top-up)</td><td id="r-owndeposit">—</td></tr>
-            <tr><td>Total RD rebate (5 yrs @ 40%)</td><td id="r-rebate">—</td></tr>
-            <tr><td>RD interest earned</td><td id="r-rdinterest">—</td></tr>
-          </tbody>
+          <caption id="rdCaption">Linked Recurring Deposit</caption>
+          <tbody id="rdTableBody"></tbody>
         </table>
       </div>
 
       <div class="block">
         <table class="ledger-table">
           <caption>Settlement</caption>
-          <tbody>
-            <tr><td>Total interest (TD + RD rebate + RD interest)</td><td id="r-totalinterest">—</td></tr>
-            <tr class="total"><td id="lbl-maturity">Final maturity (Principal + Total interest + Own deposit)</td><td id="r-maturity">—</td></tr>
-            <tr class="comm-row"><td>TD commission</td><td id="r-tdcomm">—</td></tr>
-            <tr class="comm-row"><td>RD commission</td><td id="r-rdcomm">—</td></tr>
-            <tr class="comm-row total"><td>Total commission</td><td id="r-totalcomm">—</td></tr>
-            <tr class="comm-row total"><td>Final value</td><td id="r-finalvalue">—</td></tr>
-          </tbody>
+          <tbody id="settlementTableBody"></tbody>
         </table>
       </div>
 
-      <div class="note">
-        Figures follow the source ledger exactly: TD interest compounds quarterly per year on the fixed principal; the monthly RD denomination is the Year‑1 TD interest ÷ 12, rounded up to the nearest ₹1,000; RD maturity uses the standard quarterly‑compounding recurring‑deposit formula over 20 quarters; commission is 0.5% of principal (less ₹50 per ₹1 lakh) on the TD side and 4% of the yearly RD deposit, times 5, on the RD side.
+      <div class="note" id="footerNote">
+        Figures follow the source ledger exactly: TD interest compounds quarterly per year on the fixed principal; the monthly RD denomination is the Year‑1 TD interest ÷12, rounded to the nearest denomination per the selected bound; RD maturity uses the standard quarterly‑compounding recurring‑deposit formula over 20 quarters; commission is 0.5% of principal (less ₹50 per ₹1 lakh) on the TD side and 4% of the yearly RD deposit, times 5, on the RD side.
       </div>
 
     </div>
@@ -394,6 +276,28 @@
 </div>
 
 <script>
+let lastResult = null;
+
+// Mutually exclusive bound checkboxes (behave like a radio group)
+const boundIds = ['boundUpper','boundMiddle','boundLower'];
+boundIds.forEach(id => {
+  document.getElementById(id).addEventListener('change', function(){
+    if(this.checked){
+      boundIds.forEach(other => { if(other !== id) document.getElementById(other).checked = false; });
+    } else {
+      // prevent unchecking all — re-check this one if user tries to uncheck the only active one
+      const anyChecked = boundIds.some(bid => document.getElementById(bid).checked);
+      if(!anyChecked) this.checked = true;
+    }
+  });
+});
+
+function getSelectedBound(){
+  if(document.getElementById('boundMiddle').checked) return 'middle';
+  if(document.getElementById('boundLower').checked) return 'lower';
+  return 'upper';
+}
+
 function fmtINR(n){
   const neg = n < 0;
   n = Math.round(n);
@@ -401,114 +305,158 @@ function fmtINR(n){
   return (neg ? '-₹' : '₹') + s;
 }
 
-let lastResult = null;
+function fmtINR_PDF(n){
+  const neg = n < 0;
+  n = Math.round(n);
+  let s = Math.abs(n).toLocaleString('en-IN');
+  return (neg ? '-Rs. ' : 'Rs. ') + s;
+}
 
-function calculate(){
+function computeAll(){
   const principal = parseFloat(document.getElementById('principal').value) || 0;
   const tdRate = parseFloat(document.getElementById('tdRate').value) || 0;
   const rdRate = parseFloat(document.getElementById('rdRate').value) || 0;
-  const useLowerBound = document.getElementById('useLowerBound').checked;
+  const bound = getSelectedBound();
+  const showCommission = document.getElementById('showCommission').checked;
 
-  // TD interest per year (quarterly compounding on fixed principal), same each of 5 years
   const yearInterest = Math.round(principal * (Math.pow(1 + tdRate/400, 4) - 1));
-  const tdYears = [yearInterest, yearInterest, yearInterest, yearInterest, yearInterest];
-  const totalTdInterest = tdYears.reduce((a,b)=>a+b, 0);
+  const totalTdInterest = yearInterest * 5;
 
-  // RD monthly denomination: rounded UP (Upper Bound) or DOWN (Lower Bound) to nearest 1000
-  const monthly = useLowerBound
-    ? Math.floor((yearInterest/12) / 1000) * 1000
-    : Math.ceil((yearInterest/12) / 1000) * 1000;
+  let monthly;
+  if(bound === 'upper') monthly = Math.ceil((yearInterest/12) / 1000) * 1000;
+  else if(bound === 'middle') monthly = Math.ceil((yearInterest/12) / 500) * 500;
+  else monthly = Math.floor((yearInterest/12) / 1000) * 1000;
+
   const yearlyDeposit = monthly * 12;
-  const rebatePerYear = monthly * 0.40; // 40% rebate on monthly denomination
-  const yearlyDepositLessRebate = yearlyDeposit - rebatePerYear;
+  const rebatePerYear = monthly * 0.40;
+  const yearlyLessRebate = yearlyDeposit - rebatePerYear;
   const totalRebate = rebatePerYear * 5;
 
-  // Upper Bound: rounding up means the RD installment can exceed TD interest + rebate,
-  // so the shortfall is self-funded each year ("Own Deposit") and is real capital returned at maturity.
-  // Lower Bound: rounding down means TD interest + rebate always covers the installment, so no self top-up is needed.
-  const rdOwnDeposit = useLowerBound ? 0 : (yearlyDepositLessRebate - yearInterest) * 5;
-
-  // RD interest — standard quarterly compounding RD maturity formula, minus principal deposited
-  const i = (rdRate/100) / 4; // quarterly rate
-  const n = 20; // quarters over 5 years
+  const i = (rdRate/100) / 4;
+  const n = 20;
   const numerator = Math.pow(1 + i, n) - 1;
   const denominator = 1 - Math.pow(1 + i, -1/3);
-  const rdMaturityInterest = Math.round(monthly * (numerator/denominator) - (monthly * 60));
+  const rdInterest = Math.round(monthly * (numerator/denominator) - (monthly * 60));
 
-  const totalInterest = totalTdInterest + totalRebate + rdMaturityInterest;
-  const finalMaturity = principal + totalInterest + rdOwnDeposit;
+  let ownDepositPerYear = null, ownDepositTotal = 0;
+  let leftoverPerYear = null, leftoverTotal = null;
+
+  if(bound === 'upper'){
+    ownDepositPerYear = yearlyLessRebate - yearInterest;
+    ownDepositTotal = ownDepositPerYear * 5;
+  } else {
+    leftoverPerYear = yearInterest - yearlyLessRebate;
+    leftoverTotal = leftoverPerYear * 5;
+  }
+
+  const totalInterest = totalTdInterest + totalRebate + rdInterest;
+  const finalMaturity = principal + totalInterest + ownDepositTotal;
 
   const tdComm = (principal * 0.005) - (Math.round(principal/100000) * 50);
   const rdComm = (yearlyDeposit * 0.04) * 5;
   const totalComm = tdComm + rdComm;
   const finalValue = totalComm + finalMaturity;
 
-  // Populate
-  document.getElementById('r-principal').textContent = fmtINR(principal);
-  document.getElementById('r-y1').textContent = fmtINR(tdYears[0]);
-  document.getElementById('r-y2').textContent = fmtINR(tdYears[1]);
-  document.getElementById('r-y3').textContent = fmtINR(tdYears[2]);
-  document.getElementById('r-y4').textContent = fmtINR(tdYears[3]);
-  document.getElementById('r-y5').textContent = fmtINR(tdYears[4]);
-  document.getElementById('r-tdtotal').textContent = fmtINR(totalTdInterest);
-
-  document.getElementById('lbl-monthly').textContent = 'Monthly denomination (' + (useLowerBound ? 'Lower Bound' : 'Upper Bound') + ')';
-  document.getElementById('lbl-maturity').textContent = useLowerBound
-    ? 'Final maturity (Principal + Total interest)'
-    : 'Final maturity (Principal + Total interest + Own deposit)';
-
-  document.getElementById('r-monthly').textContent = fmtINR(monthly);
-  document.getElementById('r-yearly').textContent = fmtINR(yearlyDeposit);
-  document.getElementById('r-owndeposit').textContent = fmtINR(rdOwnDeposit);
-  document.getElementById('r-rebate').textContent = fmtINR(totalRebate);
-  document.getElementById('r-rdinterest').textContent = fmtINR(rdMaturityInterest);
-
-  document.getElementById('r-totalinterest').textContent = fmtINR(totalInterest);
-  document.getElementById('r-maturity').textContent = fmtINR(finalMaturity);
-  document.getElementById('r-tdcomm').textContent = fmtINR(tdComm);
-  document.getElementById('r-rdcomm').textContent = fmtINR(rdComm);
-  document.getElementById('r-totalcomm').textContent = fmtINR(totalComm);
-  document.getElementById('r-finalvalue').textContent = fmtINR(finalValue);
-
-  const showCommission = document.getElementById('showCommission').checked;
-  const resultsEl = document.getElementById('results');
-  resultsEl.classList.toggle('commission', showCommission);
-
-  if(showCommission){
-    document.getElementById('sealLabel').textContent = 'Final Value';
-    document.getElementById('finalLabel').textContent = 'Final Value (Maturity + Commission)';
-    document.getElementById('finalSub').textContent = useLowerBound
-      ? 'Principal + Total Interest + Total Commission'
-      : 'Principal + Total Interest + Own Deposit + Total Commission';
-    document.getElementById('finalValue').textContent = fmtINR(finalValue);
-    document.getElementById('sealAmt').textContent = fmtINR(finalValue);
-  } else {
-    document.getElementById('sealLabel').textContent = 'Final Maturity';
-    document.getElementById('finalLabel').textContent = 'Final Maturity';
-    document.getElementById('finalSub').textContent = useLowerBound
-      ? 'Principal + Total Interest'
-      : 'Principal + Total Interest + Own Deposit';
-    document.getElementById('finalValue').textContent = fmtINR(finalMaturity);
-    document.getElementById('sealAmt').textContent = fmtINR(finalMaturity);
-  }
-
-  resultsEl.classList.add('show');
-
-  lastResult = {
-    principal, tdRate, rdRate, useLowerBound,
-    tdYears, totalTdInterest,
-    monthly, yearlyDeposit, rdOwnDeposit, totalRebate, rdMaturityInterest,
-    totalInterest, finalMaturity, tdComm, rdComm, totalComm, finalValue,
-    showCommission
+  return {
+    principal, tdRate, rdRate, bound, showCommission,
+    yearInterest, totalTdInterest,
+    monthly, yearlyDeposit, rebatePerYear, yearlyLessRebate, totalRebate,
+    ownDepositPerYear, ownDepositTotal, leftoverPerYear, leftoverTotal,
+    rdInterest, totalInterest, finalMaturity,
+    tdComm, rdComm, totalComm, finalValue
   };
 }
 
+function boundLabel(bound){
+  return bound === 'upper' ? 'Upper Bound' : (bound === 'middle' ? 'Middle Bound' : 'Lower Bound');
+}
+
+function renderResults(r){
+  // TD table — yearly interest shown once, not year by year
+  document.getElementById('tdTableBody').innerHTML = `
+    <tr><td>Principal</td><td>${fmtINR(r.principal)}</td></tr>
+    <tr><td>Yearly Interest</td><td>${fmtINR(r.yearInterest)}</td></tr>
+    <tr class="total"><td>Total TD Interest (5 yrs)</td><td>${fmtINR(r.totalTdInterest)}</td></tr>
+  `;
+
+  document.getElementById('rdCaption').textContent = 'Linked Recurring Deposit — ' + boundLabel(r.bound);
+
+  let rdRows = `
+    <tr><td>Monthly Denomination (${boundLabel(r.bound)})</td><td>${fmtINR(r.monthly)}</td></tr>
+    <tr><td>Yearly Deposit</td><td>${fmtINR(r.yearlyDeposit)}</td></tr>
+    <tr><td>Rebate (per year)</td><td>${fmtINR(r.rebatePerYear)}</td></tr>
+    <tr><td>Yearly Deposit - Rebate</td><td>${fmtINR(r.yearlyLessRebate)}</td></tr>
+  `;
+
+  if(r.bound === 'upper'){
+    rdRows += `
+      <tr><td>Yearly Deposit - Rebate - TD Interest (Amount Added By Self)</td><td>${fmtINR(r.ownDepositPerYear)}</td></tr>
+      <tr class="total"><td>RD Own Deposit Till 5 Years</td><td>${fmtINR(r.ownDepositTotal)}</td></tr>
+    `;
+  } else {
+    rdRows += `
+      <tr><td>Yearly Deposit - Rebate - TD Interest (Abs Left Amount in SB)</td><td>${fmtINR(r.leftoverPerYear)}</td></tr>
+      <tr class="total"><td>Balance Amount in SB After 5 Years</td><td>${fmtINR(r.leftoverTotal)}</td></tr>
+    `;
+  }
+
+  rdRows += `
+    <tr class="total"><td>RD Total Rebate</td><td>${fmtINR(r.totalRebate)}</td></tr>
+    <tr><td>RD Interest</td><td>${fmtINR(r.rdInterest)}</td></tr>
+  `;
+  document.getElementById('rdTableBody').innerHTML = rdRows;
+
+  const maturityLabel = r.bound === 'upper' ? 'Final Maturity (Inc Own Deposit)' : 'Final Maturity';
+  let settleRows = `
+    <tr class="total"><td>Total Interest</td><td>${fmtINR(r.totalInterest)}</td></tr>
+    <tr class="total"><td>${maturityLabel}</td><td>${fmtINR(r.finalMaturity)}</td></tr>
+  `;
+  if(r.showCommission){
+    settleRows += `
+      <tr><td>TD Comm</td><td>${fmtINR(r.tdComm)}</td></tr>
+      <tr><td>RD Comm</td><td>${fmtINR(r.rdComm)}</td></tr>
+      <tr class="total"><td>Total Comm</td><td>${fmtINR(r.totalComm)}</td></tr>
+      <tr class="total"><td>Final Value</td><td>${fmtINR(r.finalValue)}</td></tr>
+    `;
+  }
+  document.getElementById('settlementTableBody').innerHTML = settleRows;
+
+  if(r.showCommission){
+    document.getElementById('sealLabel').textContent = 'Final Value';
+    document.getElementById('finalLabel').textContent = 'Final Value (Maturity + Commission)';
+    document.getElementById('finalSub').textContent = r.bound === 'upper'
+      ? 'Principal + Total Interest + Own Deposit + Total Commission'
+      : 'Principal + Total Interest + Total Commission';
+    document.getElementById('finalValue').textContent = fmtINR(r.finalValue);
+    document.getElementById('sealAmt').textContent = fmtINR(r.finalValue);
+  } else {
+    document.getElementById('sealLabel').textContent = maturityLabel;
+    document.getElementById('finalLabel').textContent = maturityLabel;
+    document.getElementById('finalSub').textContent = r.bound === 'upper'
+      ? 'Principal + Total Interest + Own Deposit'
+      : 'Principal + Total Interest';
+    document.getElementById('finalValue').textContent = fmtINR(r.finalMaturity);
+    document.getElementById('sealAmt').textContent = fmtINR(r.finalMaturity);
+  }
+
+  document.getElementById('footerNote').classList.toggle('show', r.showCommission);
+  document.getElementById('results').classList.add('show');
+}
+
+function calculate(){
+  const r = computeAll();
+  renderResults(r);
+  lastResult = r;
+}
+
 function generatePDF(){
-  if(!lastResult) return;
+  const r = lastResult || computeAll();
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 48;
+  const bottomLimit = pageHeight - 56;
   let y = 56;
 
   const green = [31, 59, 44];
@@ -516,24 +464,26 @@ function generatePDF(){
   const grey = [107, 99, 80];
   const red = [122, 46, 46];
 
+  const ensureSpace = (needed) => {
+    if(y + needed > bottomLimit){ doc.addPage(); y = 56; }
+  };
+
   const line = (yy) => { doc.setDrawColor(...ink); doc.setLineWidth(0.75); doc.line(margin, yy, pageWidth - margin, yy); };
   const dashedLine = (yy) => { doc.setDrawColor(203,185,138); doc.setLineWidth(0.75); doc.setLineDashPattern([2,2], 0); doc.line(margin, yy, pageWidth - margin, yy); doc.setLineDashPattern([], 0); };
 
-  // Masthead
   doc.setTextColor(...green);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(20);
   doc.text('RD x TD Maturity Calculator', margin, y);
+  y += 16;
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(...grey);
-  y += 16;
-  doc.text('Combined Deposit Ledger — Form No. RD/TD-01', margin, y);
-  y += 8;
+  doc.text('Combined Deposit Ledger - Form No. RD/TD-01 - ' + boundLabel(r.bound), margin, y);
+  y += 10;
   line(y);
   y += 26;
 
-  // Inputs
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   doc.setTextColor(...ink);
@@ -541,98 +491,112 @@ function generatePDF(){
   y += 16;
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
-  doc.text('Principal (TD): ' + fmtINR(lastResult.principal), margin, y);
-  doc.text('TD Rate: ' + lastResult.tdRate + '%', margin + 220, y);
-  doc.text('RD Rate: ' + lastResult.rdRate + '%', margin + 360, y);
-  y += 22;
+  const colWidth = (pageWidth - margin*2) / 3;
+  doc.text('Principal (TD)', margin, y);
+  doc.text('TD Rate', margin + colWidth, y);
+  doc.text('RD Rate', margin + colWidth*2, y);
+  y += 14;
+  doc.setFont('helvetica', 'bold');
+  doc.text(fmtINR_PDF(r.principal), margin, y);
+  doc.text(r.tdRate + '%', margin + colWidth, y);
+  doc.text(r.rdRate + '%', margin + colWidth*2, y);
+  y += 20;
   dashedLine(y);
   y += 24;
 
   const section = (title) => {
+    ensureSpace(24);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     doc.setTextColor(...green);
     doc.text(title.toUpperCase(), margin, y);
-    y += 14;
+    y += 16;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(...ink);
   };
 
   const row = (label, value, bold) => {
+    ensureSpace(18);
     doc.setFont('helvetica', bold ? 'bold' : 'normal');
     doc.setTextColor(...ink);
-    doc.text(label, margin, y);
+    const wrapped = doc.splitTextToSize(label, pageWidth - margin*2 - 130);
+    doc.text(wrapped, margin, y);
     doc.text(value, pageWidth - margin, y, { align: 'right' });
-    y += 16;
+    y += 14 * wrapped.length + 4;
   };
 
-  section('Term Deposit — 5 Year Ledger');
-  row('Principal', fmtINR(lastResult.principal));
-  lastResult.tdYears.forEach((v, idx) => row('TD interest, Year ' + (idx+1), fmtINR(v)));
-  line(y - 4);
-  row('Total TD interest', fmtINR(lastResult.totalTdInterest), true);
-  y += 10;
-
-  section('Linked Recurring Deposit');
-  row('Monthly denomination (' + (lastResult.useLowerBound ? 'Lower Bound' : 'Upper Bound') + ')', fmtINR(lastResult.monthly));
-  row('Yearly deposit', fmtINR(lastResult.yearlyDeposit));
-  row('Own deposit (5 yrs, self top-up)', fmtINR(lastResult.rdOwnDeposit));
-  row('Total RD rebate (5 yrs @ 40%)', fmtINR(lastResult.totalRebate));
-  row('RD interest earned', fmtINR(lastResult.rdMaturityInterest));
-  y += 10;
-
-  section('Settlement');
-  row('Total interest (TD + RD rebate + RD interest)', fmtINR(lastResult.totalInterest));
-  row(
-    lastResult.useLowerBound ? 'Final maturity (Principal + Total interest)' : 'Final maturity (Principal + Total interest + Own deposit)',
-    fmtINR(lastResult.finalMaturity),
-    !lastResult.showCommission
-  );
-
-  if(lastResult.showCommission){
-    row('TD commission', fmtINR(lastResult.tdComm));
-    row('RD commission', fmtINR(lastResult.rdComm));
-    line(y - 4);
-    row('Total commission', fmtINR(lastResult.totalComm), true);
-  }
+  section('Term Deposit - 5 Year Ledger');
+  row('Principal', fmtINR_PDF(r.principal));
+  row('Yearly Interest', fmtINR_PDF(r.yearInterest));
+  line(y - 2);
+  y += 6;
+  row('Total TD Interest (5 yrs)', fmtINR_PDF(r.totalTdInterest), true);
   y += 8;
 
-  // Final amount seal
+  section('Linked Recurring Deposit - ' + boundLabel(r.bound));
+  row('Monthly Denomination', fmtINR_PDF(r.monthly));
+  row('Yearly Deposit', fmtINR_PDF(r.yearlyDeposit));
+  row('Rebate (per year)', fmtINR_PDF(r.rebatePerYear));
+  row('Yearly Deposit - Rebate', fmtINR_PDF(r.yearlyLessRebate));
+  if(r.bound === 'upper'){
+    row('Amount Added By Self (per year)', fmtINR_PDF(r.ownDepositPerYear));
+    line(y - 2); y += 6;
+    row('RD Own Deposit Till 5 Years', fmtINR_PDF(r.ownDepositTotal), true);
+  } else {
+    row('Abs Left Amount in SB (per year)', fmtINR_PDF(r.leftoverPerYear));
+    line(y - 2); y += 6;
+    row('Balance Amount in SB After 5 Years', fmtINR_PDF(r.leftoverTotal), true);
+  }
+  y += 4;
+  line(y - 2); y += 6;
+  row('RD Total Rebate', fmtINR_PDF(r.totalRebate), true);
+  row('RD Interest', fmtINR_PDF(r.rdInterest));
+  y += 8;
+
+  section('Settlement');
+  const maturityLabel = r.bound === 'upper' ? 'Final Maturity (Inc Own Deposit)' : 'Final Maturity';
+  row('Total Interest', fmtINR_PDF(r.totalInterest), true);
+  row(maturityLabel, fmtINR_PDF(r.finalMaturity), true);
+
+  if(r.showCommission){
+    row('TD Comm', fmtINR_PDF(r.tdComm));
+    row('RD Comm', fmtINR_PDF(r.rdComm));
+    line(y - 2); y += 6;
+    row('Total Comm', fmtINR_PDF(r.totalComm), true);
+  }
   y += 10;
-  const sealTitle = lastResult.showCommission ? 'FINAL VALUE' : 'FINAL MATURITY';
-  const sealAmount = lastResult.showCommission ? lastResult.finalValue : lastResult.finalMaturity;
+
+  const sealTitle = r.showCommission ? 'FINAL VALUE' : maturityLabel.toUpperCase();
+  const sealAmount = r.showCommission ? r.finalValue : r.finalMaturity;
+  ensureSpace(60);
   doc.setDrawColor(...red);
   doc.setLineWidth(1.5);
   doc.roundedRect(margin, y, pageWidth - margin*2, 50, 3, 3);
   doc.setTextColor(...red);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
-  doc.text(sealTitle, margin + 16, y + 20);
+  const titleWrapped = doc.splitTextToSize(sealTitle, (pageWidth - margin*2) * 0.55);
+  doc.text(titleWrapped, margin + 16, y + 20);
   doc.setFontSize(18);
-  doc.text(fmtINR(sealAmount), pageWidth - margin - 16, y + 32, { align: 'right' });
+  doc.text(fmtINR_PDF(sealAmount), pageWidth - margin - 16, y + 32, { align: 'right' });
   y += 70;
 
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(...grey);
-  const note = 'Figures follow the source ledger exactly: TD interest compounds quarterly per year on the fixed principal; the monthly RD denomination is the Year-1 TD interest divided by 12, rounded up to the nearest Rs.1,000; RD maturity uses the standard quarterly-compounding recurring-deposit formula over 20 quarters; commission is 0.5% of principal (less Rs.50 per Rs.1 lakh) on the TD side and 4% of the yearly RD deposit, times 5, on the RD side.';
-  const wrapped = doc.splitTextToSize(note, pageWidth - margin*2);
-  doc.text(wrapped, margin, y);
+  if(r.showCommission){
+    ensureSpace(70);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...grey);
+    const note = 'Figures follow the source ledger exactly: TD interest compounds quarterly per year on the fixed principal; the monthly RD denomination is the Year-1 TD interest divided by 12, rounded per the selected bound; RD maturity uses the standard quarterly-compounding recurring-deposit formula over 20 quarters; commission is 0.5% of principal (less Rs.50 per Rs.1 lakh) on the TD side and 4% of the yearly RD deposit, times 5, on the RD side.';
+    const wrapped = doc.splitTextToSize(note, pageWidth - margin*2);
+    doc.text(wrapped, margin, y);
+  }
 
   doc.save('RD-TD-Maturity-Statement.pdf');
 }
 
 document.getElementById('calcBtn').addEventListener('click', calculate);
 document.getElementById('pdfBtn').addEventListener('click', generatePDF);
-document.getElementById('showCommission').addEventListener('change', calculate);
-document.getElementById('useLowerBound').addEventListener('change', calculate);
-document.getElementById('principal').addEventListener('keydown', e => { if(e.key === 'Enter') calculate(); });
-document.getElementById('tdRate').addEventListener('keydown', e => { if(e.key === 'Enter') calculate(); });
-document.getElementById('rdRate').addEventListener('keydown', e => { if(e.key === 'Enter') calculate(); });
-
-// Auto-calculate on load with default values
-calculate();
 </script>
 </body>
 </html>
