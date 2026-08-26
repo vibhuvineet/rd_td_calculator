@@ -235,6 +235,13 @@
           <span class="prefix">₹</span>
           <input type="number" id="customAmount" value="7000" step="500" inputmode="decimal">
         </div>
+        <p style="margin:8px 0 0; font-family:'IBM Plex Sans',sans-serif; font-size:11px; line-height:1.5; color:#6b6350;">
+          Unlike Upper/Middle/Lower, this basis isn't fixed either way — it depends on
+          <em>TD Interest &minus; (Yearly Deposit &minus; Rebate)</em>. If the amount you enter
+          makes the RD's yearly obligation bigger than the TD interest, the shortfall is shown as
+          <em>Amount Added By Self</em>; if TD interest covers it with room to spare, the surplus is
+          shown as <em>Abs Left Amount in SB</em>. The calculator picks whichever applies automatically.
+        </p>
       </div>
     </fieldset>
 
@@ -313,11 +320,16 @@ function getSelectedBound(){
   return 'upper';
 }
 
-// Upper and Custom both work on the "amount added by self" basis (self top-up is real
-// capital returned at maturity). Middle and Lower instead leave a balance sitting in
-// savings, which is not added back into Final Maturity.
-function hasOwnDeposit(bound){
-  return bound === 'upper' || bound === 'custom';
+// Upper always works on the "amount added by self" basis (self top-up is real capital
+// returned at maturity). Middle and Lower instead leave a balance sitting in savings,
+// which is not added back into Final Maturity. Custom depends on the sign of
+// diff = TD Interest - (Yearly Deposit - Rebate): negative means the RD's yearly
+// obligation is bigger than the TD interest funding it, so self-top-up is needed (own
+// deposit basis); otherwise TD interest covers it with a surplus that just sits in
+// savings (leftover basis) — mirrors the source workbook's IF(F62<0, ...) logic exactly.
+function hasOwnDeposit(bound, diff){
+  if(bound === 'custom') return diff < 0;
+  return bound === 'upper';
 }
 
 function fmtINR(n){
@@ -372,13 +384,29 @@ function computeAll(){
   let ownDepositPerYear = null, ownDepositTotal = 0;
   let leftoverPerYear = null, leftoverTotal = null;
 
-  if(hasOwnDeposit(bound)){
-    // If the deposit (net of rebate) exceeds the TD interest, the shortfall is self-funded
-    // each year and is real capital, returned at maturity — captured as "Amount Added By Self".
-    ownDepositPerYear = yearlyLessRebate - yearInterest;
+  // diff = TD Interest - (Yearly Deposit - Rebate), matching the workbook's F7/F26/F44/F62
+  // exactly. Negative diff = the RD's yearly obligation outstrips the TD interest funding
+  // it (self must top up); positive diff = TD interest covers it with money left over.
+  const diff = yearInterest - yearlyLessRebate; // TD Interest - Yearly Deposit - Rebate
+  const isOwnDeposit = hasOwnDeposit(bound, diff);
+
+  if(bound === 'custom'){
+    // Mirrors the source workbook: F64 = IF(F62<0, ABS(F62*5), 0), F66 = MAX(0, F62*5).
+    if(isOwnDeposit){
+      ownDepositPerYear = -diff; // ABS(diff), diff is negative here
+      ownDepositTotal = ownDepositPerYear * 5;
+    } else {
+      leftoverPerYear = diff; // diff is already >= 0 here
+      leftoverTotal = leftoverPerYear * 5;
+    }
+  } else if(isOwnDeposit){
+    // Upper bound: mirrors F8 = ABS(F7*5) — always the "amount added by self" basis,
+    // taken as an absolute value regardless of which way diff happens to point.
+    ownDepositPerYear = Math.abs(diff);
     ownDepositTotal = ownDepositPerYear * 5;
   } else {
-    leftoverPerYear = yearInterest - yearlyLessRebate;
+    // Middle/Lower: mirrors F27/F45 = F26/F44 * 5 — always the leftover-in-SB basis.
+    leftoverPerYear = diff;
     leftoverTotal = leftoverPerYear * 5;
   }
 
@@ -394,7 +422,7 @@ function computeAll(){
     principal, tdRate, rdRate, bound, showCommission,
     yearInterest, approxMonthlyInterest, totalTdInterest,
     monthly, yearlyDeposit, rebatePerYear, yearlyLessRebate, totalRebate,
-    ownDepositPerYear, ownDepositTotal, leftoverPerYear, leftoverTotal,
+    isOwnDeposit, ownDepositPerYear, ownDepositTotal, leftoverPerYear, leftoverTotal,
     rdInterest, totalInterest, finalMaturity,
     tdComm, rdComm, totalComm, finalValue
   };
@@ -417,14 +445,14 @@ function renderResults(r){
     <tr><td>Yearly Deposit - Rebate</td><td>${fmtINR(r.yearlyLessRebate)}</td></tr>
   `;
 
-  if(hasOwnDeposit(r.bound)){
+  if(r.isOwnDeposit){
     rdRows += `
-      <tr><td>Yearly Deposit - Rebate - TD Interest (Amount Added By Self)</td><td>${fmtINR(r.ownDepositPerYear)}</td></tr>
+      <tr><td>TD Interest - Yearly Deposit - Rebate (Amount Added By Self)</td><td>${fmtINR(r.ownDepositPerYear)}</td></tr>
       <tr class="total"><td>RD Own Deposit Till 5 Years</td><td>${fmtINR(r.ownDepositTotal)}</td></tr>
     `;
   } else {
     rdRows += `
-      <tr><td>Yearly Deposit - Rebate - TD Interest (Abs Left Amount in SB)</td><td>${fmtINR(r.leftoverPerYear)}</td></tr>
+      <tr><td>TD Interest - Yearly Deposit - Rebate (Abs Left Amount in SB)</td><td>${fmtINR(r.leftoverPerYear)}</td></tr>
       <tr class="total"><td>Balance Amount in SB After 5 Years</td><td>${fmtINR(r.leftoverTotal)}</td></tr>
     `;
   }
@@ -435,7 +463,7 @@ function renderResults(r){
   `;
   document.getElementById('rdTableBody').innerHTML = rdRows;
 
-  const maturityLabel = hasOwnDeposit(r.bound) ? 'Final Maturity (Inc Own Deposit)' : 'Final Maturity';
+  const maturityLabel = r.isOwnDeposit ? 'Final Maturity (Inc Own Deposit)' : 'Final Maturity';
   let settleRows = `
     <tr class="total"><td>Total Interest</td><td>${fmtINR(r.totalInterest)}</td></tr>
     <tr class="total"><td>${maturityLabel}</td><td>${fmtINR(r.finalMaturity)}</td></tr>
@@ -453,7 +481,7 @@ function renderResults(r){
   if(r.showCommission){
     document.getElementById('sealLabel').textContent = 'Final Value';
     document.getElementById('finalLabel').textContent = 'Final Value (Maturity + Commission)';
-    document.getElementById('finalSub').textContent = hasOwnDeposit(r.bound)
+    document.getElementById('finalSub').textContent = r.isOwnDeposit
       ? 'Principal + Total Interest + Own Deposit + Total Commission'
       : 'Principal + Total Interest + Total Commission';
     document.getElementById('finalValue').textContent = fmtINR(r.finalValue);
@@ -461,7 +489,7 @@ function renderResults(r){
   } else {
     document.getElementById('sealLabel').textContent = maturityLabel;
     document.getElementById('finalLabel').textContent = maturityLabel;
-    document.getElementById('finalSub').textContent = hasOwnDeposit(r.bound)
+    document.getElementById('finalSub').textContent = r.isOwnDeposit
       ? 'Principal + Total Interest + Own Deposit'
       : 'Principal + Total Interest';
     document.getElementById('finalValue').textContent = fmtINR(r.finalMaturity);
@@ -570,12 +598,12 @@ function generatePDF(){
   row('Yearly Deposit', fmtINR_PDF(r.yearlyDeposit));
   row('Rebate (per year)', fmtINR_PDF(r.rebatePerYear));
   row('Yearly Deposit - Rebate', fmtINR_PDF(r.yearlyLessRebate));
-  if(hasOwnDeposit(r.bound)){
-    row('Amount Added By Self (per year)', fmtINR_PDF(r.ownDepositPerYear));
+  if(r.isOwnDeposit){
+    row('TD Interest - Yearly Deposit - Rebate (Amount Added By Self)', fmtINR_PDF(r.ownDepositPerYear));
     line(y - 2); y += 6;
     row('RD Own Deposit Till 5 Years', fmtINR_PDF(r.ownDepositTotal), true);
   } else {
-    row('Abs Left Amount in SB (per year)', fmtINR_PDF(r.leftoverPerYear));
+    row('TD Interest - Yearly Deposit - Rebate (Abs Left Amount in SB)', fmtINR_PDF(r.leftoverPerYear));
     line(y - 2); y += 6;
     row('Balance Amount in SB After 5 Years', fmtINR_PDF(r.leftoverTotal), true);
   }
@@ -586,7 +614,7 @@ function generatePDF(){
   y += 8;
 
   section('Settlement');
-  const maturityLabel = hasOwnDeposit(r.bound) ? 'Final Maturity (Inc Own Deposit)' : 'Final Maturity';
+  const maturityLabel = r.isOwnDeposit ? 'Final Maturity (Inc Own Deposit)' : 'Final Maturity';
   row('Total Interest', fmtINR_PDF(r.totalInterest), true);
   row(maturityLabel, fmtINR_PDF(r.finalMaturity), true);
 
