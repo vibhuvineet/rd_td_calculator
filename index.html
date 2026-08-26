@@ -107,6 +107,12 @@
   .check-option input{
     width: 15px; height: 15px; accent-color: var(--red-ink); cursor:pointer;
   }
+  .custom-amount-field{
+    margin-top: 14px;
+    max-width: 260px;
+    display: none;
+  }
+  .custom-amount-field.show{ display:flex; }
 
   .commission-toggle{
     display:flex; align-items:flex-start; gap: 10px; margin-top: 16px;
@@ -221,6 +227,14 @@
         <label class="check-option"><input type="checkbox" name="bound" id="boundUpper" checked> Upper Bound</label>
         <label class="check-option"><input type="checkbox" name="bound" id="boundMiddle"> Middle Bound</label>
         <label class="check-option"><input type="checkbox" name="bound" id="boundLower"> Lower Bound</label>
+        <label class="check-option"><input type="checkbox" name="bound" id="boundCustom"> Custom RD Amount</label>
+      </div>
+      <div class="field custom-amount-field" id="customAmountField">
+        <label for="customAmount">Monthly RD Deposit (Custom)</label>
+        <div class="input-row">
+          <span class="prefix">₹</span>
+          <input type="number" id="customAmount" value="7000" step="500" inputmode="decimal">
+        </div>
       </div>
     </fieldset>
 
@@ -268,7 +282,7 @@
       </div>
 
       <div class="note" id="footerNote">
-        Figures follow the source ledger exactly: TD interest compounds quarterly per year on the fixed principal; the monthly RD denomination is the Year‑1 TD interest ÷12, rounded to the nearest denomination per the selected bound; RD maturity uses the standard quarterly‑compounding recurring‑deposit formula over 20 quarters; commission is 0.5% of principal (less ₹50 per ₹1 lakh) on the TD side and 4% of the yearly RD deposit, times 5, on the RD side.
+        Figures follow the source ledger exactly: TD interest compounds quarterly per year on the fixed principal; the monthly RD denomination is either rounded per the selected bound or entered directly under Custom RD Amount; RD maturity uses the standard quarterly‑compounding recurring‑deposit formula over 20 quarters; commission is 0.5% of principal (less ₹50 per ₹1 lakh) on the TD side and 4% of the yearly RD deposit, times 5, on the RD side.
       </div>
 
     </div>
@@ -279,23 +293,31 @@
 let lastResult = null;
 
 // Mutually exclusive bound checkboxes (behave like a radio group)
-const boundIds = ['boundUpper','boundMiddle','boundLower'];
+const boundIds = ['boundUpper','boundMiddle','boundLower','boundCustom'];
 boundIds.forEach(id => {
   document.getElementById(id).addEventListener('change', function(){
     if(this.checked){
       boundIds.forEach(other => { if(other !== id) document.getElementById(other).checked = false; });
     } else {
-      // prevent unchecking all — re-check this one if user tries to uncheck the only active one
       const anyChecked = boundIds.some(bid => document.getElementById(bid).checked);
       if(!anyChecked) this.checked = true;
     }
+    document.getElementById('customAmountField').classList.toggle('show', document.getElementById('boundCustom').checked);
   });
 });
 
 function getSelectedBound(){
   if(document.getElementById('boundMiddle').checked) return 'middle';
   if(document.getElementById('boundLower').checked) return 'lower';
+  if(document.getElementById('boundCustom').checked) return 'custom';
   return 'upper';
+}
+
+// Upper and Custom both work on the "amount added by self" basis (self top-up is real
+// capital returned at maturity). Middle and Lower instead leave a balance sitting in
+// savings, which is not added back into Final Maturity.
+function hasOwnDeposit(bound){
+  return bound === 'upper' || bound === 'custom';
 }
 
 function fmtINR(n){
@@ -312,6 +334,13 @@ function fmtINR_PDF(n){
   return (neg ? '-Rs. ' : 'Rs. ') + s;
 }
 
+function boundLabel(bound){
+  if(bound === 'middle') return 'Middle Bound';
+  if(bound === 'lower') return 'Lower Bound';
+  if(bound === 'custom') return 'Custom RD Amount';
+  return 'Upper Bound';
+}
+
 function computeAll(){
   const principal = parseFloat(document.getElementById('principal').value) || 0;
   const tdRate = parseFloat(document.getElementById('tdRate').value) || 0;
@@ -320,12 +349,14 @@ function computeAll(){
   const showCommission = document.getElementById('showCommission').checked;
 
   const yearInterest = Math.round(principal * (Math.pow(1 + tdRate/400, 4) - 1));
+  const approxMonthlyInterest = Math.round(yearInterest / 12);
   const totalTdInterest = yearInterest * 5;
 
   let monthly;
   if(bound === 'upper') monthly = Math.ceil((yearInterest/12) / 1000) * 1000;
   else if(bound === 'middle') monthly = Math.ceil((yearInterest/12) / 500) * 500;
-  else monthly = Math.floor((yearInterest/12) / 1000) * 1000;
+  else if(bound === 'lower') monthly = Math.floor((yearInterest/12) / 1000) * 1000;
+  else monthly = parseFloat(document.getElementById('customAmount').value) || 0; // custom
 
   const yearlyDeposit = monthly * 12;
   const rebatePerYear = monthly * 0.40;
@@ -341,7 +372,9 @@ function computeAll(){
   let ownDepositPerYear = null, ownDepositTotal = 0;
   let leftoverPerYear = null, leftoverTotal = null;
 
-  if(bound === 'upper'){
+  if(hasOwnDeposit(bound)){
+    // If the deposit (net of rebate) exceeds the TD interest, the shortfall is self-funded
+    // each year and is real capital, returned at maturity — captured as "Amount Added By Self".
     ownDepositPerYear = yearlyLessRebate - yearInterest;
     ownDepositTotal = ownDepositPerYear * 5;
   } else {
@@ -359,7 +392,7 @@ function computeAll(){
 
   return {
     principal, tdRate, rdRate, bound, showCommission,
-    yearInterest, totalTdInterest,
+    yearInterest, approxMonthlyInterest, totalTdInterest,
     monthly, yearlyDeposit, rebatePerYear, yearlyLessRebate, totalRebate,
     ownDepositPerYear, ownDepositTotal, leftoverPerYear, leftoverTotal,
     rdInterest, totalInterest, finalMaturity,
@@ -367,15 +400,11 @@ function computeAll(){
   };
 }
 
-function boundLabel(bound){
-  return bound === 'upper' ? 'Upper Bound' : (bound === 'middle' ? 'Middle Bound' : 'Lower Bound');
-}
-
 function renderResults(r){
-  // TD table — yearly interest shown once, not year by year
   document.getElementById('tdTableBody').innerHTML = `
     <tr><td>Principal</td><td>${fmtINR(r.principal)}</td></tr>
     <tr><td>Yearly Interest</td><td>${fmtINR(r.yearInterest)}</td></tr>
+    <tr><td>Approx Monthly Interest</td><td>${fmtINR(r.approxMonthlyInterest)}</td></tr>
     <tr class="total"><td>Total TD Interest (5 yrs)</td><td>${fmtINR(r.totalTdInterest)}</td></tr>
   `;
 
@@ -388,7 +417,7 @@ function renderResults(r){
     <tr><td>Yearly Deposit - Rebate</td><td>${fmtINR(r.yearlyLessRebate)}</td></tr>
   `;
 
-  if(r.bound === 'upper'){
+  if(hasOwnDeposit(r.bound)){
     rdRows += `
       <tr><td>Yearly Deposit - Rebate - TD Interest (Amount Added By Self)</td><td>${fmtINR(r.ownDepositPerYear)}</td></tr>
       <tr class="total"><td>RD Own Deposit Till 5 Years</td><td>${fmtINR(r.ownDepositTotal)}</td></tr>
@@ -406,7 +435,7 @@ function renderResults(r){
   `;
   document.getElementById('rdTableBody').innerHTML = rdRows;
 
-  const maturityLabel = r.bound === 'upper' ? 'Final Maturity (Inc Own Deposit)' : 'Final Maturity';
+  const maturityLabel = hasOwnDeposit(r.bound) ? 'Final Maturity (Inc Own Deposit)' : 'Final Maturity';
   let settleRows = `
     <tr class="total"><td>Total Interest</td><td>${fmtINR(r.totalInterest)}</td></tr>
     <tr class="total"><td>${maturityLabel}</td><td>${fmtINR(r.finalMaturity)}</td></tr>
@@ -424,7 +453,7 @@ function renderResults(r){
   if(r.showCommission){
     document.getElementById('sealLabel').textContent = 'Final Value';
     document.getElementById('finalLabel').textContent = 'Final Value (Maturity + Commission)';
-    document.getElementById('finalSub').textContent = r.bound === 'upper'
+    document.getElementById('finalSub').textContent = hasOwnDeposit(r.bound)
       ? 'Principal + Total Interest + Own Deposit + Total Commission'
       : 'Principal + Total Interest + Total Commission';
     document.getElementById('finalValue').textContent = fmtINR(r.finalValue);
@@ -432,7 +461,7 @@ function renderResults(r){
   } else {
     document.getElementById('sealLabel').textContent = maturityLabel;
     document.getElementById('finalLabel').textContent = maturityLabel;
-    document.getElementById('finalSub').textContent = r.bound === 'upper'
+    document.getElementById('finalSub').textContent = hasOwnDeposit(r.bound)
       ? 'Principal + Total Interest + Own Deposit'
       : 'Principal + Total Interest';
     document.getElementById('finalValue').textContent = fmtINR(r.finalMaturity);
@@ -495,7 +524,7 @@ function generatePDF(){
   doc.text('Principal (TD)', margin, y);
   doc.text('TD Rate', margin + colWidth, y);
   doc.text('RD Rate', margin + colWidth*2, y);
-  y += 14;
+  y += 15;
   doc.setFont('helvetica', 'bold');
   doc.text(fmtINR_PDF(r.principal), margin, y);
   doc.text(r.tdRate + '%', margin + colWidth, y);
@@ -517,18 +546,20 @@ function generatePDF(){
   };
 
   const row = (label, value, bold) => {
-    ensureSpace(18);
+    const wrapped = doc.splitTextToSize(label, pageWidth - margin*2 - 130);
+    const rowHeight = 14 * wrapped.length + 4;
+    ensureSpace(rowHeight);
     doc.setFont('helvetica', bold ? 'bold' : 'normal');
     doc.setTextColor(...ink);
-    const wrapped = doc.splitTextToSize(label, pageWidth - margin*2 - 130);
     doc.text(wrapped, margin, y);
     doc.text(value, pageWidth - margin, y, { align: 'right' });
-    y += 14 * wrapped.length + 4;
+    y += rowHeight;
   };
 
   section('Term Deposit - 5 Year Ledger');
   row('Principal', fmtINR_PDF(r.principal));
   row('Yearly Interest', fmtINR_PDF(r.yearInterest));
+  row('Approx Monthly Interest', fmtINR_PDF(r.approxMonthlyInterest));
   line(y - 2);
   y += 6;
   row('Total TD Interest (5 yrs)', fmtINR_PDF(r.totalTdInterest), true);
@@ -539,7 +570,7 @@ function generatePDF(){
   row('Yearly Deposit', fmtINR_PDF(r.yearlyDeposit));
   row('Rebate (per year)', fmtINR_PDF(r.rebatePerYear));
   row('Yearly Deposit - Rebate', fmtINR_PDF(r.yearlyLessRebate));
-  if(r.bound === 'upper'){
+  if(hasOwnDeposit(r.bound)){
     row('Amount Added By Self (per year)', fmtINR_PDF(r.ownDepositPerYear));
     line(y - 2); y += 6;
     row('RD Own Deposit Till 5 Years', fmtINR_PDF(r.ownDepositTotal), true);
@@ -555,7 +586,7 @@ function generatePDF(){
   y += 8;
 
   section('Settlement');
-  const maturityLabel = r.bound === 'upper' ? 'Final Maturity (Inc Own Deposit)' : 'Final Maturity';
+  const maturityLabel = hasOwnDeposit(r.bound) ? 'Final Maturity (Inc Own Deposit)' : 'Final Maturity';
   row('Total Interest', fmtINR_PDF(r.totalInterest), true);
   row(maturityLabel, fmtINR_PDF(r.finalMaturity), true);
 
@@ -587,7 +618,7 @@ function generatePDF(){
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(...grey);
-    const note = 'Figures follow the source ledger exactly: TD interest compounds quarterly per year on the fixed principal; the monthly RD denomination is the Year-1 TD interest divided by 12, rounded per the selected bound; RD maturity uses the standard quarterly-compounding recurring-deposit formula over 20 quarters; commission is 0.5% of principal (less Rs.50 per Rs.1 lakh) on the TD side and 4% of the yearly RD deposit, times 5, on the RD side.';
+    const note = 'Figures follow the source ledger exactly: TD interest compounds quarterly per year on the fixed principal; the monthly RD denomination is either rounded per the selected bound or entered directly under Custom RD Amount; RD maturity uses the standard quarterly-compounding recurring-deposit formula over 20 quarters; commission is 0.5% of principal (less Rs.50 per Rs.1 lakh) on the TD side and 4% of the yearly RD deposit, times 5, on the RD side.';
     const wrapped = doc.splitTextToSize(note, pageWidth - margin*2);
     doc.text(wrapped, margin, y);
   }
